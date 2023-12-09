@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"bubbles-tree/pkg"
 	"fmt"
+
+	"github.com/lcc/bubbles-tree/pkg"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

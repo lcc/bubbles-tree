@@ -1,6 +1,6 @@
 package main
 
-import "bubbles-tree/cmd"
+import "github.com/lcc/bubbles-tree/cmd"
 
 func main() {
 	cmd.Execute()

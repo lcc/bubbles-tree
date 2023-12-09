@@ -1,10 +1,8 @@
-module bubbles-tree
+module github.com/lcc/bubbles-tree
 
 go 1.21.0
 
 require (
-	github.com/antihax/optional v1.0.0
-	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/spf13/cobra v1.7.0
