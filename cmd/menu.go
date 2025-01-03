@@ -94,6 +94,270 @@ var namespaceCmd = &cobra.Command{
 							{
 								name: "value2",
 							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
+							{
+								name: "value1",
+							},
+							{
+								name: "value2",
+							},
 						},
 					},
 				},
@@ -117,7 +381,7 @@ var namespaceCmd = &cobra.Command{
 		}
 
 		tree := pkg.NewTree(namespace)
-		p := tea.NewProgram(tree)
+		p := tea.NewProgram(tree, tea.WithAltScreen())
 		if _, err := p.Run(); err != nil {
 			panic(err)
 		}

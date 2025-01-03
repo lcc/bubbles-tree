@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -20,8 +21,8 @@ func NewTree(childProvider interface{}) *CLITree {
 	var rootInterface NodeInterface
 	tree := newTree(rootInterface, childProvider, "")
 	return &CLITree{
-		tree:   *tree,
-		cursor: tree.Children[0].ID,
+		tree:    *tree,
+		cursors: []int{0},
 	}
 }
 
@@ -138,8 +139,39 @@ func newTree(parent NodeInterface, childProvider interface{}, ID string) *Node {
 }
 
 type CLITree struct {
-	tree   Node
-	cursor string
+	tree    Node
+	cursors cursos
+}
+
+type cursos []int
+
+func (m *CLITree) previous() {
+	lastCursor := len(m.cursors) - 1
+	m.cursors[lastCursor] = m.cursors[lastCursor] - 1
+}
+
+func (m *CLITree) next() {
+	lastCursor := len(m.cursors) - 1
+	m.cursors[lastCursor] = m.cursors[lastCursor] + 1
+}
+
+func (m *CLITree) nextLevel() {
+	m.cursors = append(m.cursors, 0)
+}
+
+func (m *CLITree) previousLevel() {
+	m.cursors = m.cursors[:len(m.cursors)-1]
+}
+
+func (m CLITree) cursor() string {
+	// convert cusors to a string
+
+	ret := ""
+	for i := range m.cursors {
+		ret += fmt.Sprintf("%d", m.cursors[i])
+	}
+
+	return ret
 }
 
 func (m CLITree) Init() tea.Cmd {
@@ -149,7 +181,7 @@ func (m CLITree) Init() tea.Cmd {
 func (m CLITree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		curr := m.tree.find(m.cursor)
+		curr := m.tree.find(m.cursor())
 		switch msg.String() {
 		case "ctrl+c", "q", "enter":
 			return m, tea.Quit
@@ -158,27 +190,29 @@ func (m CLITree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if previous == nil {
 				return m, nil
 			}
-			m.cursor = previous.ID
+			m.previous()
 			return m, nil
 		case "down", "j":
 			previous := curr.next()
 			if previous == nil {
 				return m, nil
 			}
-			m.cursor = previous.ID
+			m.next()
 			return m, nil
 		case "l", "right":
 			if curr.isLeaf() {
 				curr.Update()
 				return m, nil
 			}
-			m.cursor = curr.Children[0].ID
+			m.nextLevel()
+			// m.cursor = curr.Children[0].ID
 			return m, nil
 		case "delete", "left", "h", "backspace":
 			if curr.Parent.isRoot() {
 				return m, nil
 			}
-			m.cursor = curr.Parent.ID
+			m.previousLevel()
+			// m.cursor = curr.Parent.ID
 			return m, nil
 		}
 	}
@@ -186,21 +220,32 @@ func (m CLITree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CLITree) View() string {
-	s := fmt.Sprintf("Select items: %s \n\n", m.cursor)
-	curr := m.tree.find(m.cursor)
-	for _, choice := range m.tree.Children {
+	s := fmt.Sprintf("Select items: %v \n\n", m.cursors)
+	curr := m.tree.find(m.cursor())
+
+	renderMax := 10
+	startAt := nonNegative(m.cursors[len(m.cursors)-1] - renderMax)
+	s += fmt.Sprint(startAt) + "\n"
+	for i, choice := range m.tree.Children {
 		cursor := ""
 		if choice.ID == curr.branch().ID {
-			s += fmt.Sprintf("%s\n", displayChildren(*choice, m.cursor))
+			ret := fmt.Sprintf("%s\n", m.displayChildren(*choice, m.cursor()))
+			s += keepRangeAfterNNewlines(ret, startAt, renderMax) + "\n"
+			// ignore everything before startAt \n
 			continue
 		}
 		s += fmt.Sprintf("%s %s\n", cursor, choice.Value.Name())
+
+		if i == renderMax {
+			break
+		}
+
 	}
 	s += "\nPress q or ctrl-c to quit.\n"
 	return s
 }
 
-func displayChildren(n Node, cursor string) string {
+func (m CLITree) displayChildren(n Node, cursor string) string {
 	ret := " "
 	if n.ID == cursor {
 		ret = ">"
@@ -210,21 +255,25 @@ func displayChildren(n Node, cursor string) string {
 		return ret + n.Value.Print() + "\n"
 	}
 
-	for i, child := range n.Children {
-		name := displayChildren(*child, cursor)
+	// startAt := nonNegative(m.cursors[len(m.cursors)-1] - renderMax)
+	for i := range n.Children {
+		child := n.Children[i]
+		identation := recursiveIdentation(*child)
+		name := m.displayChildren(*child, cursor)
+
 		if i == 0 {
-			identation := identation(*child)
+			identation := ident(*child)
 			parentIdentation := parentIdentation(*child.Parent, identation)
 			ret += n.Value.Print() + parentIdentation + name
 			continue
 		}
-		identation := recursiveIdentation(*child)
 		ret += identation + name
 	}
+
 	return ret + "\n"
 }
 
-func identation(n Node) string {
+func ident(n Node) string {
 	if n.Parent.isRoot() {
 		return ""
 	}
@@ -282,4 +331,31 @@ func sameSizeStrWhiteSpaces(s string) string {
 		ret += SPACE
 	}
 	return ret
+}
+
+func nonNegative(val int) int {
+	if val < 0 {
+		return 0
+	}
+	return val
+}
+
+// keepRangeAfterNNewlines keeps a specific range of lines after ignoring the first n newlines.
+func keepRangeAfterNNewlines(s string, n int, x int) string {
+	// Split the string by newline characters
+	lines := strings.Split(s, "\n")
+
+	// If n is greater than the number of lines, return an empty string
+	if n >= len(lines) {
+		return ""
+	}
+
+	// Calculate the end index, but ensure it doesn't exceed the total number of lines
+	end := n + x
+	if end > len(lines) {
+		end = len(lines)
+	}
+
+	// Join and return only the lines within the range after skipping the first n
+	return strings.Join(lines[n:end], "\n")
 }
